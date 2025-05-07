@@ -221,7 +221,7 @@ export function CanvasGeometry() {
       style={{
         position:'fixed',
         left:'5%',
-        top:'50%'
+        top:'55%'
       }}
       onClick={()=>setShowAnalysis(x=>!x)}
     >

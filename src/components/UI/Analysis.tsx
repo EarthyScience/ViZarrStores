@@ -1,5 +1,6 @@
 import './Analysis.css'
 import * as React from 'react'
+import { variables } from '../ZarrLoaderLRU'
 
 const axis = [0,1,2]
 const operations = [
@@ -9,14 +10,15 @@ const operations = [
 interface Analysis{
     setters:{
         setAxis:React.Dispatch<React.SetStateAction<number>>;
-        setOperation:React.Dispatch<React.SetStateAction<string>>
-        setExecute:React.Dispatch<React.SetStateAction<boolean>>
+        setOperation:React.Dispatch<React.SetStateAction<string>>;
+        setExecute:React.Dispatch<React.SetStateAction<boolean>>;
+        setSecondVar:React.Dispatch<React.SetStateAction<string>>;
     }
 }
 
 
 const AnalysisWindow = ({setters}:Analysis)=> {
-    const {setAxis, setOperation, setExecute} = setters;
+    const {setAxis, setOperation, setExecute, setSecondVar} = setters;
 
     return(
         <div className="analysis-container">
@@ -39,8 +41,23 @@ const AnalysisWindow = ({setters}:Analysis)=> {
                 ))
                 }
             </select>
+
             <br/>
             <button onClick={()=>setExecute(x=>!x)}>Calculate</button>
+            <br/>
+            <b>Correlation</b>
+            <br/>
+
+            <label htmlFor="second-var">Second Var</label>
+            <select name="second-var" id="" onChange={(e)=>setSecondVar(e.target.value)}>
+                {
+                variables.map((val)=>(
+                    <option value={val}>{val}</option>
+                ))
+                }
+            </select>
+
+
         </div>
     )
 }

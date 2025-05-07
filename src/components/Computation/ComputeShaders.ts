@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { GPUComputationRenderer } from 'three/examples/jsm/Addons.js'
 import { useThree } from '@react-three/fiber'
-import { MeanFrag, MaxFrag, MinFrag, StDevFrag } from './shaders'
+import { MeanFrag, MaxFrag, MinFrag, StDevFrag, CorrelateFrag } from './shaders'
 
 
 interface Array{
@@ -13,7 +13,6 @@ interface Array{
 export class OneArrayCompute{
     private data: number[];
     private shape: number[];
-    private stride: number[];
     private renderer: THREE.WebGLRenderer;
     private GPUCompute: GPUComputationRenderer;
     private texture: THREE.Data3DTexture | null;
@@ -24,7 +23,6 @@ export class OneArrayCompute{
     constructor(array: Array){
         this.data = array.data;
         this.shape = array.shape;
-        this.stride = array.stride;
         this.renderer = useThree(state => state.gl) 
         this.GPUCompute = new GPUComputationRenderer(10,10,this.renderer)
         this.initTexture = this.GPUCompute.createTexture()
@@ -87,6 +85,56 @@ export class OneArrayCompute{
         }
         const reducer = this.GPUCompute.addVariable("reduction", StDevFrag, this.initTexture);
         reducer.material.uniforms[`dataArray]`] = { value: this.texture };
+        reducer.material.uniforms['axisSize'] = { value: this.shape[this.targetAxis]}
+        reducer.material.uniforms['axis'] = { value: this.targetAxis}
+        this.GPUCompute.doRenderTarget(reducer.material,this.renderTarget)
+        return this.renderTarget.texture
+    }
+}
+
+
+export class TwoArrayCompute{
+    private data: number[];
+    private shape: number[];
+    private renderer: THREE.WebGLRenderer;
+    private GPUCompute: GPUComputationRenderer;
+    private firstTexture: THREE.Data3DTexture;
+    private secondTexture: THREE.Data3DTexture;
+    private targetAxis: number;
+    private renderTarget: THREE.WebGLRenderTarget<THREE.Texture>;
+    private initTexture: THREE.DataTexture
+
+    constructor(array: Array){
+        this.data = array.data;
+        this.shape = array.shape;
+        this.renderer = useThree(state => state.gl) 
+        this.GPUCompute = new GPUComputationRenderer(10,10,this.renderer)
+        this.initTexture = this.GPUCompute.createTexture()
+        this.targetAxis = 5;
+        this.renderTarget = this.GPUCompute.createRenderTarget(10,10,THREE.ClampToEdgeWrapping,THREE.ClampToEdgeWrapping,1006,1006);
+        const size = array.shape[0]*array.shape[1]*array.shape[2]
+        const newArray = new Float32Array(size)
+        for (let i = 0; i<size; i++){
+            newArray[i] = this.data[i]
+        }
+        this.firstTexture = new THREE.Data3DTexture(newArray,this.shape[2],this.shape[1],this.shape[0])
+        this.secondTexture = this.firstTexture
+    }
+    
+    private initAxis(axis:number){
+        const resolution = this.shape.filter((_val,idx)=> idx !== axis)
+        this.GPUCompute = new GPUComputationRenderer(resolution[0],resolution[1],this.renderer)
+        this.targetAxis = axis;
+        this.renderTarget = this.GPUCompute.createRenderTarget(resolution[0],resolution[1],THREE.ClampToEdgeWrapping,THREE.ClampToEdgeWrapping,1006,1006)
+    }
+
+    Correlate(axis:number){
+        if (axis !== this.targetAxis){
+            this.initAxis(axis)
+        }
+        const reducer = this.GPUCompute.addVariable("reduction", CorrelateFrag, this.initTexture);
+        reducer.material.uniforms[`dataArray`] = { value: this.firstTexture };
+        reducer.material.uniforms[`dataArray2]`] = { value: this.secondTexture };
         reducer.material.uniforms['axisSize'] = { value: this.shape[this.targetAxis]}
         reducer.material.uniforms['axis'] = { value: this.targetAxis}
         this.GPUCompute.doRenderTarget(reducer.material,this.renderTarget)
