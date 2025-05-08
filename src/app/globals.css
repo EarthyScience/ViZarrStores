@@ -183,39 +183,42 @@ a[href]:hover::after {
  /* This is the native css for the tweakpane */
 .tp-dfwv {
   /* position: absolute !important; */
-  right: 15% !important;
-  top: 1rem !important ;
+  right: 15%;
+  top: 1rem;
   user-select: none;
-  z-index: 100 !important;
+  z-index: 100;
 }
 
 /* This is my custom tweakpane container  */
 .plot-pane{
   position: fixed;
-  top: 3rem !important ;
-  right: 0.5rem !important;
-  z-index: 100 !important;
+  top: 3rem;
+  right: 0.5rem;
+  z-index: 100;
 }
 
 .plot-cloud{
   position: fixed;
-  top: 3rem !important ;
-  right: 0.5rem !important;
-  z-index: 100 !important;
+  top: 3rem;
+  right: 0.5rem;
+  z-index: 10;
 }
 
 .line-plot-pane{
-  position: absolute;
+  position: fixed;
   bottom: 20%;
   right: 0.5rem;
-  z-index: 100 !important;
+  z-index: 10
 }
 
 .analysis-tp{
-  position: absolute;
+  position: fixed;
   bottom: 20%;
+  width: 100px;
+  height: 50px;
   right: 0.5rem;
-  z-index: 100 !important;
+  z-index: 10;
+  background-color: wheat;
 }
 
 .analysis {

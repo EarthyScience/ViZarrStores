@@ -35,5 +35,5 @@ void main() {
     }
     
     float mean = sum / float(axisSize);
-    gl_FragColor = vec4(mean, 0.0, 0.0, 1.0); // Output mean in red channel
+    gl_FragColor = vec4(0.99, 0.0, 0.0, 1.0); // Output mean in red channel
 }
