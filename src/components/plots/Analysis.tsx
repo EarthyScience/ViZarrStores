@@ -4,7 +4,7 @@ import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
 import ComputeModule from '@/components/computation/ComputeModule'
 import { ZarrDataset } from '../zarr/ZarrLoaderLRU'
-import { createPaneContainer } from '../ui'
+import { createPaneContainer } from '@/components/ui'
 import { useTweakpane, usePaneInput } from '@lazarusa/react-tweakpane'
 import { OrbitControls } from '@react-three/drei'
 import { variables } from '../zarr/ZarrLoaderLRU'
@@ -101,6 +101,35 @@ export const Analysis = ({values}:AnalysisParameters) => {
     }
     
   },[firstVar])
+
+  const paneContainer = createPaneContainer("analysis-ui")
+  const pane = useTweakpane({
+    operation:"mean",
+    firstVar:"Default"
+  },
+  {
+    title:"Analysis",
+    container:paneContainer ?? undefined,
+    expanded:true
+  }
+  )
+
+  const [operation_2] = usePaneInput(pane,"operation",
+    {
+      label:"Operation",
+      options:[
+        {
+          text:"Mean",
+          value:"mean"
+        },
+        {
+          text:"Min",
+          value:"min"
+        }
+      ]
+    }
+
+  )
 
   const stateVars = {
     operation,

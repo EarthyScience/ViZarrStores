@@ -134,7 +134,11 @@ export function CanvasGeometry() {
   const [executeReduction,setExecuteReduction] = useState<boolean>(false)
   const [showAnalysis, setShowAnalysis] = useState<boolean>(false)
 
-  const [canvasWidth,setCanvasWidth] = useState<number>(Math.round(window.innerWidth*0.4))
+  const [canvasWidth, setCanvasWidth] = useState<number>(0)
+
+  useEffect(() => {
+    setCanvasWidth(Math.round(window.innerWidth * 0.4))
+  }, [])
 
   //Camera states
   // const [resetCamera, setResetCamera] = useState<boolean>(false)

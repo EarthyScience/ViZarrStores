@@ -10,9 +10,12 @@ interface MiddleParams{
 }
 
 const MiddleSlider = ({canvasWidth,setCanvasWidth}:MiddleParams) => {
-
-    const screenWidth = window.innerWidth;
+    const [screenWidth, setScreenWidth] = useState<number>(0);
     const [isResizing, setIsResizing] = useState<boolean>(false);
+
+    useEffect(() => {
+        setScreenWidth(window.innerWidth);
+    }, []);
         
           // Start resizing on mousedown
         const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {

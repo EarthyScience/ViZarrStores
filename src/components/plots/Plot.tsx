@@ -47,6 +47,14 @@ const Plot = ({values,setters,timeSeriesObj}:PlotParameters) => {
     const [dataArray, setDataArray] = useState<Array | null>(null)
     const [render,setRender] = useState<boolean>(false)
     
+    const [windowWidth, setWindowWidth] = useState<number>(0);
+
+    useEffect(() => {
+        setWindowWidth(window.innerWidth);
+        const handleResize = () => setWindowWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Listen for theme changes
     useEffect(() => {
@@ -131,7 +139,7 @@ const Plot = ({values,setters,timeSeriesObj}:PlotParameters) => {
   return (
     <div className='main-canvas'
       style={{
-        width:window.innerWidth-canvasWidth         
+        width: windowWidth - canvasWidth         
       }}
     >
       <button
