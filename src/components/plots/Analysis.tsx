@@ -6,6 +6,7 @@ import * as THREE from 'three'
 import ComputeModule from '@/components/computation/ComputeModule'
 import { ZarrDataset } from '../zarr/ZarrLoaderLRU'
 import { createPaneContainer } from '@/components/ui'
+import { createPaneContainer } from '@/components/ui'
 import { useTweakpane, usePaneInput } from '@lazarusa/react-tweakpane'
 import { OrbitControls } from '@react-three/drei'
 import { variables } from '../zarr/ZarrLoaderLRU'
@@ -168,49 +169,35 @@ export const Analysis = ({values}:AnalysisParameters) => {
     
   },[firstVar])
 
-  // const paneContainer = createPaneContainer("analysis-tp")
-  // const pane = useTweakpane({
-  //   operation:"mean",
-  //   firstVar:"Default"
-  // },
-  // {
-  //   title:"Analysis",
-  //   container:paneContainer ?? undefined,
-  //   expanded:true
-  // }
-  // )
-
-  // const [operation] = usePaneInput(pane,"operation",
-  //   {
-  //     label:"Operation",
-  //     options:[
-  //       {
-  //         text:"Mean",
-  //         value:"mean"
-  //       },
-  //       {
-  //         text:"Min",
-  //         value:"min"
-  //       }
-  //     ]
-  //   }
-
-  // )
-
-  const stateVars = {
-    operation,
-    axis,
-    execute
+  const paneContainer = createPaneContainer("analysis-ui")
+  const pane = useTweakpane({
+    operation:"mean",
+    firstVar:"Default"
+  },
+  {
+    title:"Analysis",
+    container:paneContainer ?? undefined,
+    expanded:true
   }
+  )
 
-  const setters={
-    setExecute,
-    setOperation,
-    setAxis,
-    setFirstVariable:setFirstVar,
-    setSecondVariable:setSecondVar,
-    setShowExecute
-  }
+  const [operation_2] = usePaneInput(pane,"operation",
+    {
+      label:"Operation",
+      options:[
+        {
+          text:"Mean",
+          value:"mean"
+        },
+        {
+          text:"Min",
+          value:"min"
+        }
+      ]
+    }
+
+  )
+
   const stateVars = {
     operation,
     axis,

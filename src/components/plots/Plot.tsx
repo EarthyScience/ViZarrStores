@@ -51,9 +51,6 @@ const Plot = ({values,setters,timeSeriesObj}:PlotParameters) => {
     const {setShowLoading,setValueScales,setShape,setMetadata,setDimArrays,setDimNames,setDimUnits} = setters;
     const [texture, setTexture] = useState<THREE.DataTexture | THREE.Data3DTexture | null>(null)
     const [currentBg, setCurrentBg] = useState(bgcolor || 'var(--background)')
-    const [dataArray, setDataArray] = useState<Array | null>(null)
-    const [render,setRender] = useState<boolean>(false)
-    
     const [windowWidth, setWindowWidth] = useState<number>(0);
 
     useEffect(() => {
