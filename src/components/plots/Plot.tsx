@@ -1,6 +1,6 @@
 import { OrbitControls } from '@react-three/drei';
 import React from 'react';
-import SimpleCompute from '../computation/SimpleCompute';
+import ComputeModule from '../computation/ComputeModule';
 import { useState, useEffect } from 'react';
 import * as THREE from 'three';
 import { PointCloud, UVCube, DataCube } from '@/components/plots';
@@ -37,7 +37,14 @@ interface PlotParameters{
     timeSeriesObj: TimeSeriesProps
 }
 
+function GLContext(){
+  const {gl} = useThree()
+  console.log(gl.getContext())
 
+  return(<>
+  
+  </>)
+}
 const Plot = ({values,setters,timeSeriesObj}:PlotParameters) => {
 
     const {plotType,colormap,ZarrDS,variable,shape,bgcolor,canvasWidth} = values;

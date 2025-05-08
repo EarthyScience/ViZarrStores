@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState, useMemo } from 'react'
 import { OneArrayCompute } from './ComputeShaders'
 import * as THREE from 'three'
@@ -23,6 +25,7 @@ const ComputeModule = ({array,cmap,stateVars}:{array: Array,cmap:THREE.DataTextu
     const shape = array.shape
     const shape = array.shape
     const [planeShape,setPlaneShape] = useState<number[]>(shape.filter((_val,idx)=> idx !== axis))
+    
 
     const GPUCompute = new OneArrayCompute(array)
     const [texture,setTexture] = useState<THREE.Texture>(new THREE.Texture())
@@ -52,7 +55,6 @@ const ComputeModule = ({array,cmap,stateVars}:{array: Array,cmap:THREE.DataTextu
             break
           case "Mean":
             newText =  GPUCompute.Mean(axis);
-            console.log("Meaned")
             break
           case "StDev":
             newText =  GPUCompute.StDev(axis);

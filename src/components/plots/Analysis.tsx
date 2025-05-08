@@ -150,7 +150,7 @@ function ControlFace({dimNames,showExecute,setters}:ControlParams){
 }
 
 export const Analysis = ({values}:AnalysisParameters) => {
-  const {ZarrDS, cmap, shape, canvasWidth,dimNames} = values
+  const {ZarrDS, cmap, canvasWidth,dimNames} = values
 
   const [execute , setExecute] = useState<boolean>(false)
   const [firstVar, setFirstVar] = useState<string>("Default")
