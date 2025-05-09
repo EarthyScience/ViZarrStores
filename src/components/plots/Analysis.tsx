@@ -10,11 +10,12 @@ import { OrbitControls } from '@react-three/drei'
 import { variables } from '@/components/zarr/ZarrLoaderLRU'
 import './Plots.css'
 
-interface Array{
+interface ArrayData {
   data:number[],
   shape:number[],
   stride:number[]
 }
+
 interface AnalysisParameters{
 
     values:{
@@ -28,19 +29,30 @@ interface AnalysisParameters{
 
 export const Analysis = ({values}:AnalysisParameters) => {
   const {ZarrDS, cmap, canvasWidth, dimNames} = values
-
-  const [array , setArray] = useState<Array | null>(null)
-
+  const [array , setArray] = useState<ArrayData | null>(null)
+  
   const optionsVars = useMemo(() => variables.map((element) => ({
     text: element,
     value: element
   })), []);
 
-  const dimNamesAxis = useMemo(() => dimNames.map((element) => ({
-    text: element,
-    value: element
-  })), []);
-  
+  const [dimNamesAxis, setDimNamesAxis] = useState<{text: string, value: string}[]>(() => 
+    dimNames.map((element) => ({
+      text: element,
+      value: element
+    }))
+  );
+
+  useEffect(() => {
+    const newOptions = dimNames.map((element) => ({
+      text: element,
+      value: element
+    }));
+    setDimNamesAxis(newOptions);
+  }, [dimNames]);
+
+  console.log('dimNames:', dimNames);
+  console.log('dimNamesAxis:', dimNamesAxis);
 
   const paneContainer = createPaneContainer("analysis")
   const pane = useTweakpane({
@@ -120,13 +132,17 @@ export const Analysis = ({values}:AnalysisParameters) => {
       value: false
     }
   )
-  const [axis] = usePaneInput(
+  const [axis, setAxis] = usePaneInput(
     pane,
     'axis',
     {
       label: 'Axis',
       options: dimNamesAxis,
       value: 0
+    },
+    (event) => {
+      console.log('Axis changed:', event.value);
+      setAxis(event.value);
     }
   )
 
