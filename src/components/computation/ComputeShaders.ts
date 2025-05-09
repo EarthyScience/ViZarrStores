@@ -26,6 +26,7 @@ export class OneArrayCompute{
         this.initTexture = this.GPUCompute.createTexture()
         this.targetAxis = 5;
         this.renderTarget = this.GPUCompute.createRenderTarget(10,10,THREE.ClampToEdgeWrapping,THREE.ClampToEdgeWrapping,1006,1006);
+
         const size = array.shape[0]*array.shape[1]*array.shape[2]
         const newArray = new Uint8Array(size)
 
@@ -45,6 +46,9 @@ export class OneArrayCompute{
         this.GPUCompute = new GPUComputationRenderer(resolution[0],resolution[1],this.renderer)
         this.targetAxis = axis;
         this.renderTarget = this.GPUCompute.createRenderTarget(resolution[0],resolution[1],THREE.ClampToEdgeWrapping,THREE.ClampToEdgeWrapping,1006,1006)
+        this.renderTarget.texture.minFilter = THREE.NearestFilter;
+        this.renderTarget.texture.magFilter = THREE.NearestFilter;
+        this.renderTarget.texture.needsUpdate = true;
     }
     private performReduction(axis: number, fragShader: any): THREE.Texture {
         if (axis !== this.targetAxis) {
