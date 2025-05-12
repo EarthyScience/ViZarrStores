@@ -1,34 +1,21 @@
 import * as THREE from 'three'
-import { useState } from 'react';
-import { DimCoords } from '@/components/contexts/PlotContext';
-import { ZarrDataset } from '@/components/zarr/ZarrLoaderLRU';
+import { useState, useContext } from 'react';
+import { zarrContext } from '../contexts/ZarrContext';
 import { parseUVCoords } from '@/utils/HelperFuncs';
+import useGlobals from '@/utils/useGlobals';
 
-export interface TimeSeriesProps{
-  setters:{
-    setTimeSeries:React.Dispatch<React.SetStateAction<number[]>>,
-    setPlotDim:React.Dispatch<React.SetStateAction<number>>,
-    setDimCoords:React.Dispatch<React.SetStateAction<DimCoords | undefined>>,
-  },
-  values:{
-    shape:THREE.Vector3,
-    ZarrDS:ZarrDataset,
-    dimArrays:number[][],
-    dimNames:string[]
-    dimUnits:string[]
-  }
-}
 
-export const UVCube = (timeSeriesProps : TimeSeriesProps )=>{
+export const UVCube = ( )=>{
+  const {values, setters} = useGlobals();
   const [clickPoint, setClickPoint] = useState<THREE.Vector3 | null>(null);
-  const {setTimeSeries,setPlotDim,setDimCoords} = timeSeriesProps.setters;
-  const {shape,ZarrDS,dimArrays,dimNames,dimUnits} = timeSeriesProps.values;
   
+  const {setTimeSeries,setPlotDim,setDimCoords} = setters;
+  const {shape,dimArrays,dimNames,dimUnits} = values;
+  const ZarrDS = useContext(zarrContext)
   function HandleTimeSeries(event: THREE.Intersection){
     const point = event.point;
     const uv = event.uv!;
     const normal = event.normal!;
-
     if(ZarrDS){
       ZarrDS.GetTimeSeries({uv,normal}).then((e)=> setTimeSeries(e))
       const plotDim = (normal.toArray()).map((val, idx) => {

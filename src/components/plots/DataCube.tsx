@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import { vertexShader, fragmentShader } from '@/components/textures/shaders';
 import { usePaneInput, usePaneFolder, useSliderBlade, useTweakpane } from '@lazarusa/react-tweakpane'
 import { createPaneContainer } from '@/components/ui';
-
+import useGlobals from '@/utils/useGlobals';
 
 interface DataCubeProps {
   volTexture: THREE.Data3DTexture | THREE.DataTexture | null,
@@ -13,10 +13,10 @@ interface DataCubeProps {
   flipY:boolean
 }
 
-export const DataCube = ({ volTexture, shape, colormap, flipY }: DataCubeProps ) => {
+export const DataCube = ({ volTexture, shape, colormap, flipY }: DataCubeProps ) => {  
+  
     const meshRef = useRef<THREE.Mesh>(null);
     const paneContainer = createPaneContainer("plot-pane");
-    console.log(flipY)
     const pane = useTweakpane(
         {
           flip: false,

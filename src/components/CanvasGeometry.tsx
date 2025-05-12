@@ -9,8 +9,10 @@ import { GetColorMapTexture, colormaps } from '@/components/textures';
 import { createPaneContainer, MiddleSlider } from '@/components/ui';
 import { plotContext, DimCoords } from '@/components/contexts';
 import { Metadata, ShowAnalysis } from '@/components/ui';
+import { zarrContext } from './contexts/ZarrContext';
 // import ComputeModule from '@/components/computation/ComputeModule'
 import { usePaneInput, usePaneFolder, useTweakpane, useButtonBlade, useTextBlade } from '@lazarusa/react-tweakpane'
+import useGlobals from '@/utils/useGlobals';
 
 
 interface Array{
@@ -18,6 +20,8 @@ interface Array{
   shape:number[],
   stride:number[]
 }
+
+
 const storeURL = "https://s3.bgc-jena.mpg.de:9000/misc/seasfire_rechunked.zarr"
 // const storeURL = "https://s3.bgc-jena.mpg.de:9000/esdl-esdc-v3.0.2/esdc-16d-2.5deg-46x72x1440-3.0.2.zarr"
 const zarrMetadata = await GetZarrMetadata(storeURL)
@@ -42,8 +46,12 @@ function Loading({showLoading}:{showLoading:boolean}){
 
 export function CanvasGeometry() {
   const [flipCmap, setFlipCmap] = useState<boolean>(false)
-
-
+  const {values, setters} = useGlobals();
+  const {timeSeries, colormap} = values;
+  const {setColormap} = setters;
+  useEffect(()=>{
+    console.log("TS Update")
+  },[timeSeries])
   const optionsVars = useMemo(() => variables.map((element) => ({
     text: element,
     value: element
@@ -75,7 +83,7 @@ export function CanvasGeometry() {
     value: '#292b32'
   })
 
-  const [storeURL] = usePaneInput(pane, 'storeURL', {
+  usePaneInput(pane, 'storeURL', {
     label: 'Store URL',
     options: [
       {
@@ -88,7 +96,8 @@ export function CanvasGeometry() {
       },
     ],
     value: 'https://s3.bgc-jena.mpg.de:9000/esdl-esdc-v3.0.2/esdc-16d-2.5deg-46x72x1440-3.0.2.zarr'
-  })
+});
+
 // TODO: update variables when custom store is selected
   const [customStore] = useTextBlade(pane, {
     label: 'Custom Store',
@@ -134,14 +143,11 @@ export function CanvasGeometry() {
     title:"Flip Colors"
   },()=>setFlipCmap(x=>!x))
 
-
   const [shape, setShape] = useState<THREE.Vector3 | THREE.Vector3>(new THREE.Vector3(2, 2, 2))
   const [valueScales,setValueScales] = useState({maxVal:1,minVal:-1})
-  const [colormap,setColormap] = useState<THREE.DataTexture>(GetColorMapTexture())
-  const [timeSeries, setTimeSeries] = useState<number[]>([0]);
+
   const [showLoading, setShowLoading] = useState<boolean>(false);
   const [metadata,setMetadata] = useState<object[] | null>(null)
-  const [dataArray, setDataArray] = useState<Array | null>(null)
   
   //Timeseries Plotting Information
   const [dimArrays,setDimArrays] = useState<number[][]>([[0],[0],[0]])
@@ -149,12 +155,10 @@ export function CanvasGeometry() {
   const [dimUnits,setDimUnits] = useState<string[]>(["Default"]);
   const [dimCoords, setDimCoords] = useState<DimCoords>();
   const [plotDim,setPlotDim] = useState<number>(0)
-  const ZarrDS = useMemo(()=>new ZarrDataset(storeURL),[storeURL])
 
-  //Analysis variables
-  const [reduceAxis, setReduceAxis] = useState<number>(0);
-  const [reduceOperation, setReduceOperation] = useState<string>("Mean")
-  const [executeReduction,setExecuteReduction] = useState<boolean>(false)
+  const ZarrDS = useMemo(()=>{if (storeURL){ return new ZarrDataset(storeURL)}},[storeURL])
+
+  // We will change this logic later on when the tweakpane is reactive
 
   const [canvasWidth, setCanvasWidth] = useState<number>(0)
 
@@ -179,7 +183,6 @@ export function CanvasGeometry() {
     },
     setters:{
       setShowLoading,
-      setDataArray,
       setValueScales,
       setShape,
       setMetadata,
@@ -191,7 +194,6 @@ export function CanvasGeometry() {
 
   const timeSeriesObj ={
     setters:{
-      setTimeSeries,
       setPlotDim,
       setDimCoords
     },
@@ -223,18 +225,6 @@ export function CanvasGeometry() {
     scaling:{...valueScales,colormap}
   } 
 
-  const analysisSetters = {
-    setAxis:setReduceAxis,
-    setOperation:setReduceOperation,
-    setExecute:setExecuteReduction
-  }
-
-  const analysisVars = {
-    axis:reduceAxis,
-    operation:reduceOperation,
-    execute:executeReduction
-  }
-
   const analysisObj = {
     setters:{
 
@@ -251,16 +241,18 @@ export function CanvasGeometry() {
 
   return (
     <>
-    {canvasWidth < 10 && <ShowAnalysis onClick={()=>setCanvasWidth(window.innerWidth*.5)} canvasWidth={canvasWidth} />}
-    {canvasWidth > 10 && <MiddleSlider canvasWidth={canvasWidth} setCanvasWidth={setCanvasWidth}/>}
-    <Loading showLoading={showLoading} />
-    {canvasWidth > 10 && <Analysis values={analysisObj.values} variables={variables} />}
-    <Plot values={plotObj.values} setters={plotObj.setters} timeSeriesObj={timeSeriesObj} />
-    {metadata && <Metadata data={metadata} /> }
+    <zarrContext.Provider value={ZarrDS} >
+      {canvasWidth < 10 && <ShowAnalysis onClick={()=>setCanvasWidth(window.innerWidth*.5)} canvasWidth={canvasWidth} />}
+      {canvasWidth > 10 && <MiddleSlider canvasWidth={canvasWidth} setCanvasWidth={setCanvasWidth}/>}
+      <Loading showLoading={showLoading} />
+      {canvasWidth > 10 && <Analysis variables={variables} />}
+      <Plot values={plotObj.values} setters={plotObj.setters} />
+      {metadata && <Metadata data={metadata} /> }
 
-    <plotContext.Provider value={lineObj} >
-      {timeSeries.length > 2 && <PlotArea />}
-    </plotContext.Provider>
+      <plotContext.Provider value={lineObj} >
+        {timeSeries.length > 2 && <PlotArea />}
+      </plotContext.Provider>
+    </zarrContext.Provider>
     </>
   )
 }

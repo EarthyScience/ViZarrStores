@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import { zarrContext } from '../contexts/ZarrContext'
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
 import { ArrayMinMax } from '@/utils/HelperFuncs'
@@ -8,6 +9,7 @@ import { ZarrDataset } from '@/components/zarr/ZarrLoaderLRU'
 import { createPaneContainer } from '@/components/ui'
 import { useTweakpane, usePaneInput, useButtonBlade } from '@lazarusa/react-tweakpane'
 import { OrbitControls } from '@react-three/drei'
+import useGlobals from '@/utils/useGlobals'
 import './Plots.css'
 
 interface Array{
@@ -16,21 +18,15 @@ interface Array{
   stride:number[]
 }
 interface AnalysisParameters{
-
-    values:{
-      ZarrDS:ZarrDataset;
-      cmap: THREE.DataTexture;
-      shape: number[];
-      canvasWidth:number;
-      dimNames: string[];
-    }
     variables: string[]
 }
 
-export const Analysis = ({values, variables}:AnalysisParameters) => {
-  const {ZarrDS, cmap, canvasWidth, dimNames} = values
-  const scaleObjRef = useRef<Record<string, { min: number; max: number }>>({});
+export const Analysis = ({variables}:AnalysisParameters) => {
 
+  const {values} = useGlobals()
+  const {colormap, canvasWidth, dimNames} = values
+  const scaleObjRef = useRef<Record<string, { min: number; max: number }>>({});
+  const ZarrDS = useContext(zarrContext)
   const [maxVal, setMaxVal] = useState<number>(100);
   const [minVal, setMinVal] = useState<number>(0);
   const [maxVal2, setMaxVal2] = useState<number>(100);
@@ -151,7 +147,7 @@ export const Analysis = ({values, variables}:AnalysisParameters) => {
   }
 
   useEffect(()=>{
-    if (firstVar !== "Default"){
+    if (firstVar !== "Default" && ZarrDS){
       ZarrDS.GetArray(firstVar).then(result=>{
         setArray(result);
         if (firstVar in scaleObjRef.current){
@@ -167,7 +163,7 @@ export const Analysis = ({values, variables}:AnalysisParameters) => {
         }
       })
     }
-    if (secondVar !== "Default"){
+    if (secondVar !== "Default" && ZarrDS){
       ZarrDS.GetArray(secondVar).then(result=>{
         setArray2(result);
         if (secondVar in scaleObjRef.current){
@@ -199,7 +195,7 @@ export const Analysis = ({values, variables}:AnalysisParameters) => {
   }
   const computeObj = {
     values:{
-      cmap,
+      cmap:colormap,
       stateVars,
       valueScales
     }

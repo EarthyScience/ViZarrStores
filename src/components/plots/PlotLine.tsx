@@ -5,6 +5,7 @@ import { plotContext } from '../contexts/PlotContext';
 import { useFrame } from '@react-three/fiber';
 import { createPaneContainer } from '../ui';
 import { useButtonBlade, useSliderBlade, useTweakpane, usePaneInput } from '@lazarusa/react-tweakpane';
+import useGlobals from '@/utils/useGlobals';
 
 interface PlotLineProps {
   color?: string;
@@ -166,9 +167,11 @@ export const PlotLine = ({
     step:1
   })
 
-  const {scaling, timeSeries} = useContext(plotContext)
+  const {values} = useGlobals()
+  const {timeSeries} = values;
+  const {scaling} = useContext(plotContext)
   const data = timeSeries
-
+  console.log(data)
   //LinSpace to take up entire extent
   function linspace(start: number, stop: number, num: number): number[] {
     const step = (stop - start) / (num - 1);

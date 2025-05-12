@@ -1,23 +1,18 @@
 import { OrbitControls } from '@react-three/drei';
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import * as THREE from 'three';
 import { PointCloud, UVCube, DataCube } from '@/components/plots';
 import { Canvas, useThree } from '@react-three/fiber';
 import { ArrayToTexture, DefaultCubeTexture } from '@/components/textures';
-import { ZarrDataset } from '../zarr/ZarrLoaderLRU';
-import { TimeSeriesProps } from './UVCube';
-interface Array{
-  data:number[],
-  shape:number[],
-  stride:number[]
-}
+import { zarrContext } from '../contexts/ZarrContext';
+import useGlobals from '@/utils/useGlobals';
+
 
 interface PlotParameters{
     values:{
         plotType:string;
         colormap:THREE.DataTexture;
-        ZarrDS: ZarrDataset;
         variable:string;
         shape:THREE.Vector3;
         bgcolor:string;
@@ -25,22 +20,18 @@ interface PlotParameters{
     },
     setters:{
       setShowLoading: React.Dispatch<React.SetStateAction<boolean>>;
-      setDataArray: React.Dispatch<React.SetStateAction<Array | null>>;
-      setValueScales: React.Dispatch<React.SetStateAction<{maxVal:number,minVal:number}>>;
-      setShape: React.Dispatch<React.SetStateAction<THREE.Vector3>>;
-      setMetadata: React.Dispatch<React.SetStateAction<object[] | null>>;
-      setDimArrays: React.Dispatch<React.SetStateAction<number[][]>>;
-      setDimNames: React.Dispatch<React.SetStateAction<string[]>>;
-      setDimUnits:React.Dispatch<React.SetStateAction<string[]>>;
-    },
-    timeSeriesObj: TimeSeriesProps
+    }
 }
 
 
-const Plot = ({values,setters,timeSeriesObj}:PlotParameters) => {
+const Plot = ({values,setters}:PlotParameters) => {
+    const globals = useGlobals()
+    const {setValueScales,setShape,setMetadata,setDimArrays,setDimNames,setDimUnits} = globals.setters;
+    const {shape,colormap} = globals.values;
+    const {plotType,variable,bgcolor,canvasWidth} = values;
+    const ZarrDS = useContext(zarrContext)
 
-    const {plotType,colormap,ZarrDS,variable,shape,bgcolor,canvasWidth} = values;
-    const {setShowLoading,setValueScales,setShape,setMetadata,setDimArrays,setDimNames,setDimUnits} = setters;
+    const {setShowLoading} = setters;
     const [texture, setTexture] = useState<THREE.DataTexture | THREE.Data3DTexture | null>(null)
     const [currentBg, setCurrentBg] = useState(bgcolor || 'var(--background)')
     const [flipY, setFlipY] = useState<boolean>(false)
@@ -78,7 +69,7 @@ const Plot = ({values,setters,timeSeriesObj}:PlotParameters) => {
 
   //DATA LOADING
   useEffect(() => {
-    if (variable != "Default") {
+    if (variable != "Default" && ZarrDS) {
       setShowLoading(true);
       //Need to add a check somewhere here to swap to 2D or 3D based on shape. Probably export two variables from GetArray
       ZarrDS.GetArray(variable).then((result) => {
@@ -152,7 +143,7 @@ const Plot = ({values,setters,timeSeriesObj}:PlotParameters) => {
             {/* Volume Plots */}
             {plotType == "volume" && <>
             <DataCube volTexture={texture} shape={shape} colormap={colormap} flipY={flipY}/>
-            <UVCube {...timeSeriesObj} />
+            <UVCube />
             </>}
             {/* Point Clouds */}
             {plotType == "point-cloud" && <PointCloud textures={{texture,colormap}} />}

@@ -4,6 +4,7 @@ import { PlotLine, FixedTicks } from '@/components/plots'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { plotContext } from '@/components/contexts'
 import { ResizeBar, YScaler,XScaler } from '@/components/ui'
+import useGlobals from '@/utils/useGlobals'
 import './LinePlot.css'
 
 interface pointInfo{
@@ -13,7 +14,11 @@ interface pointInfo{
 }
 
 function PointInfo({pointID,pointLoc,showPointInfo}:pointInfo){
-  const {plotDim,dimArrays, timeSeries,dimNames,dimUnits,plotUnits} = useContext(plotContext);
+  const {values} = useGlobals();
+  
+  const {plotDim,dimArrays, timeSeries,dimNames,dimUnits,metadata} = values;
+  console.log(timeSeries)
+  const plotUnits = metadata ? (metadata as any).units : "Default"
   const pointY = timeSeries[pointID];
   const pointX = dimArrays[plotDim][pointID];
   const [divX,divY] = pointLoc;
@@ -51,6 +56,7 @@ function PointCoords(){
   const [moving,setMoving] = useState<boolean>(false)
   const initialMouse = useRef<number[]>([0,Math.round(window.innerHeight*0.255)])
   const initialDiv = useRef<number[]>([0,Math.round(window.innerHeight*0.255)])
+
   const [xy, setXY] = useState<number[]>([0,Math.round(window.innerHeight*0.255)])
 
   function handleDown(e: any){
