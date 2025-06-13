@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
 import { LuChevronsUpDown } from "react-icons/lu";
 import { IoIosCheckmark } from "react-icons/io";
 import { ZARR_STORES } from "../zarr/ZarrLoaderLRU";
@@ -124,6 +124,7 @@ const Navbar = React.memo(function Navbar(){
   useEffect(()=>{
     setColormap(GetColorMapTexture(colormap, cmap === "Default" ? "Spectral" : cmap, 1, "#000000", 0, flipCmap));
   },[cmap, flipCmap])
+  const Tweak = useMemo(()=><PlotTweaker/> ,[])
   return (
     <nav className="navbar">
       <div className="navbar-left">
@@ -189,7 +190,7 @@ const Navbar = React.memo(function Navbar(){
           </SelectContent>
         </Select>
       
-      {!isFlat && <PlotTweaker/>}
+      {!isFlat && Tweak}
       </div>
       <ThemeSwitch />
       <AboutButton />

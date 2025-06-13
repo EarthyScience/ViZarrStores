@@ -33,14 +33,14 @@ function Norm(val : number, min : number, max : number){
     return (val-min)/range;
 }
 
-const MinMaxSlider = ({range, setRange, valueScales, min=-1, array} : 
+const MinMaxSlider = React.memo(function MinMaxSlider({range, setRange, valueScales, min=-1, array} : 
     {
         range : number[], 
         setRange : (value: number[]) => void, 
         valueScales : {minVal : number, maxVal  : number},
         min?: number,
         array?: number[]
-    }) => {
+    }){
         let {minVal, maxVal} = valueScales;
         minVal = Number(minVal)
         maxVal = Number(maxVal)
@@ -77,9 +77,9 @@ const MinMaxSlider = ({range, setRange, valueScales, min=-1, array} :
         </div>
 
     )
-}
+})
 
-const VolumeTweaks = () => {
+const VolumeTweaks = React.memo(function VolumeTweaks(){
     const {valueRange, xRange, yRange, zRange, setValueRange, setXRange, setYRange, setZRange, setQuality} = usePlotStore(useShallow(state => ({
         valueRange: state.valueRange,
         xRange: state.xRange,
@@ -157,10 +157,10 @@ const VolumeTweaks = () => {
           </DropdownMenu>
         </div>
     )
-}
+})
 
 
-const PointTweaks = () => {
+const PointTweaks = React.memo(function PointTweaks(){
     const {setPointSize, setScaleIntensity, setScalePoints} = usePlotStore(useShallow(
         (state => ({setPointSize: state.setPointSize, setScaleIntensity: state.setScaleIntensity, setScalePoints: state.setScalePoints}))))
 
@@ -213,9 +213,9 @@ const PointTweaks = () => {
           </DropdownMenu>
         </div>
     )
-}
+})
 
-const PlotTweaker = () => {
+const PlotTweaker = React.memo(function PlotTweaker(){
     const plotType = usePlotStore(state => state.plotType)
   return (
     <>
@@ -223,6 +223,6 @@ const PlotTweaker = () => {
     {plotType === "point-cloud" && <PointTweaks/>}
     </>
   )
-}
+})
 
-export default PlotTweaker
+export {PlotTweaker}

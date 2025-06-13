@@ -1,6 +1,5 @@
 import { OrbitControls } from '@react-three/drei';
-import React, { useMemo } from 'react';
-import { useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import { PointCloud, UVCube, DataCube, FlatMap } from '@/components/plots';
 import { Canvas, useThree } from '@react-three/fiber';
@@ -8,7 +7,8 @@ import { ArrayToTexture, DefaultCubeTexture } from '@/components/textures';
 import { ZarrDataset } from '../zarr/ZarrLoaderLRU';
 import { useGlobalStore, usePlotStore } from '@/utils/GlobalStates';
 import { useShallow } from 'zustand/shallow';
-import { Navbar, PlotLineButton } from '../ui';
+import { Navbar, PlotLineButton, PlotTweaker } from '../ui';
+
 
 interface PlotParameters{
     values:{
@@ -43,7 +43,8 @@ const Plot = ({values,setShowLoading}:PlotParameters) => {
     const {ZarrDS,canvasWidth} = values;
     const plotType = usePlotStore(state => state.plotType)
 
-
+    const [showTweaker, setShowTweaker] = useState<boolean>(false);
+    const tweakerLoc = useRef<number[]>([0,0])
     const [texture, setTexture] = useState<THREE.DataTexture | THREE.Data3DTexture | null>(null)
     // const [currentBg, setCurrentBg] = useState(bgcolor || 'var(--background)')
     const [show, setShow] = useState<boolean>(true)
@@ -142,13 +143,21 @@ const Plot = ({values,setShowLoading}:PlotParameters) => {
       }
   }, [variable])
 
+  function HandleContext(e : any){
+    tweakerLoc.current = [e.pageX,e.pageY]
+    setShowTweaker(true)
+  }
+
   const Nav = useMemo(()=>Navbar,[])
   return (
     <div className='main-canvas'
       style={{
         width: windowWidth - canvasWidth         
       }}
+      onContextMenu={HandleContext}
+      onClick={()=>setShowTweaker(false)}
     >
+      {showTweaker && <div style={{position:'fixed', left:tweakerLoc.current[0], top:tweakerLoc.current[1], zIndex:'6'}}> <PlotTweaker /></div>}
       {plotType == "volume" && !isFlat && <PlotLineButton />}
       <Nav />
 
