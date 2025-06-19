@@ -9,3 +9,4 @@ export {Analysis} from './Analysis';
 export {ThickLine} from './ThickLine'
 export {PlotPoints} from './PlotPoints'
 export {FlatMap} from './FlatMap'
+export {AxisBars} from './AxisBars'
