@@ -1,9 +1,8 @@
 import { OrbitControls } from '@react-three/drei';
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
-import { PerspectiveCamera, OrthographicCamera } from '@react-three/drei'
 
-import { PointCloud, UVCube, DataCube, FlatMap } from '@/components/plots';
+import { PointCloud, UVCube, DataCube, FlatMap, AxisBars } from '@/components/plots';
 import { Canvas } from '@react-three/fiber';
 import { ArrayToTexture } from '@/components/textures';
 import { ZarrDataset } from '../zarr/ZarrLoaderLRU';
@@ -194,6 +193,7 @@ const Plot = ({values,setShowLoading}:PlotParameters) => {
       <Canvas camera={{ position: isFlat ? [0,0,5] : [-4.5, 3, 4.5], fov: 50 }}
         frameloop="demand"
       >
+        {/* {show &&<AxisBars />} */}
         {plotType == "volume" && show && <>
           <DataCube volTexture={texture}/>
           <UVCube ZarrDS={ZarrDS} />

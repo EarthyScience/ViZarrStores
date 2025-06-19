@@ -15,7 +15,6 @@ export const DataCube = ({ volTexture }: DataCubeProps ) => {
 
 
     const {shape, colormap, flipY} = useGlobalStore(useShallow(state=>({shape:state.shape, colormap:state.colormap, flipY:state.flipY}))) //We have to useShallow when returning an object instead of a state. I don't fully know the logic yet
-
     const {valueRange, xRange, yRange, zRange, quality, animate, resetAnim, cScale, cOffset} = usePlotStore(useShallow(state => ({
       valueRange: state.valueRange,
       xRange: state.xRange,
